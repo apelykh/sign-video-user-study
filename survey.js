@@ -93,6 +93,7 @@ const survey = {
     questions: [],      // Populated after proficiency selection
     modelMappings: {},  // clipId -> {A: model, B: model, ...}
     responses: [],
+    savedAnswers: {},   // clipId -> { rankingOrder: ['A','B','C','D'], rating: '3' }
     startTime: null,
 };
 
@@ -281,9 +282,17 @@ function loadQuestion() {
         videoEl.load();
     });
 
-    // Reset ranking and rating
-    resetRanking();
-    document.querySelectorAll('input[name="hf-rating"]').forEach(el => el.checked = false);
+    // Restore or reset ranking and rating
+    const saved = survey.savedAnswers[q.id];
+    if (saved) {
+        restoreRanking(saved.rankingOrder);
+        document.querySelectorAll('input[name="hf-rating"]').forEach(el => {
+            el.checked = (el.value === saved.rating);
+        });
+    } else {
+        resetRanking();
+        document.querySelectorAll('input[name="hf-rating"]').forEach(el => el.checked = false);
+    }
 
     updateProgress();
 }
@@ -303,6 +312,11 @@ async function nextQuestion() {
 
     const q = survey.questions[survey.currentIndex];
     const mapping = survey.modelMappings[q.id];
+
+    // Save UI state for restoring on back-navigation
+    const rankingOrder = [...document.querySelectorAll('#ranking-interface .rank-item')]
+        .map(item => item.dataset.label);
+    survey.savedAnswers[q.id] = { rankingOrder, rating };
 
     // Build batch of responses for this question
     const batch = [];
@@ -334,7 +348,8 @@ async function nextQuestion() {
         response_value: parseInt(rating),
     });
 
-    // Save locally
+    // Remove any previous responses for this question, then add new ones
+    survey.responses = survey.responses.filter(r => r.clip_id !== q.id);
     batch.forEach(r => survey.responses.push(r));
 
     // Save to Firebase immediately
@@ -354,8 +369,6 @@ async function nextQuestion() {
 function previousQuestion() {
     if (survey.currentIndex > 0) {
         survey.currentIndex--;
-        // Remove last 5 local responses (4 ranks + 1 rating)
-        survey.responses = survey.responses.slice(0, -5);
         loadQuestion();
     }
 }
@@ -453,6 +466,17 @@ function resetRanking() {
         a.dataset.label.localeCompare(b.dataset.label)
     );
     items.forEach(item => container.appendChild(item));
+    updateRankNumbers();
+    updateArrowStates();
+}
+
+function restoreRanking(labelOrder) {
+    const container = document.getElementById('ranking-interface');
+    const itemsByLabel = {};
+    [...container.children].forEach(item => {
+        itemsByLabel[item.dataset.label] = item;
+    });
+    labelOrder.forEach(label => container.appendChild(itemsByLabel[label]));
     updateRankNumbers();
     updateArrowStates();
 }
