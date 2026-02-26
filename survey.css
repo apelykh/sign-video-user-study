@@ -275,15 +275,7 @@ input[type="text"]:focus {
     opacity: 0.5;
 }
 
-/* Reference text */
-.reference-text {
-    background: #fff9e6;
-    border: 2px solid #ffd700;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-}
-
+/* Reference text — base overrides handled in halfway section below */
 .reference-text strong {
     color: #333;
     display: block;
@@ -412,6 +404,62 @@ input[type="text"]:focus {
     .btn {
         width: 100%;
     }
+}
+
+/* Halfway encouragement screen */
+.halfway-content {
+    text-align: center;
+    padding: 60px 40px;
+}
+
+.halfway-image {
+    max-width: 360px;
+    width: 100%;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.halfway-content h2 {
+    font-size: 32px;
+    color: #667eea;
+    margin-bottom: 12px;
+}
+
+.halfway-content p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+/* Text reference section — attention-grabbing */
+.reference-text {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 100%);
+    border: 3px solid #f0ad4e;
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0;
+    position: relative;
+    animation: pulseGlow 2s ease-in-out;
+}
+
+.reference-text-badge {
+    display: inline-block;
+    background: #f0ad4e;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(240, 173, 78, 0.5); }
+    50% { box-shadow: 0 0 20px 4px rgba(240, 173, 78, 0.3); }
+    100% { box-shadow: 0 0 0 0 rgba(240, 173, 78, 0); }
 }
 
 /* Validation states */

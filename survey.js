@@ -188,17 +188,24 @@ function buildQuestionList() {
 // Screen Navigation
 // ─────────────────────────────────────────────────────────────────────────────
 
+const HALFWAY_AFTER = 8; // Show encouragement screen after this many questions
+
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(`screen-${screenId}`).classList.add('active');
 
     const progressBar = document.getElementById('progress-bar');
-    if (screenId === 'welcome' || screenId === 'thankyou') {
+    if (screenId === 'welcome' || screenId === 'thankyou' || screenId === 'halfway') {
         progressBar.style.display = 'none';
     } else {
         progressBar.style.display = 'block';
         updateProgress();
     }
+}
+
+function dismissHalfway() {
+    loadQuestion();
+    showScreen('question');
 }
 
 function updateProgress() {
@@ -258,6 +265,10 @@ function loadQuestion() {
     if (meta.hasReferenceText) {
         refTextSection.style.display = 'block';
         document.getElementById('reference-text-content').textContent = q.referenceText;
+        // Re-trigger pulse animation
+        refTextSection.style.animation = 'none';
+        refTextSection.offsetHeight; // force reflow
+        refTextSection.style.animation = '';
     } else {
         refTextSection.style.display = 'none';
     }
@@ -331,10 +342,12 @@ async function nextQuestion() {
 
     // Advance
     survey.currentIndex++;
-    if (survey.currentIndex < survey.questions.length) {
-        loadQuestion();
-    } else {
+    if (survey.currentIndex >= survey.questions.length) {
         finishSurvey();
+    } else if (survey.currentIndex === HALFWAY_AFTER) {
+        showScreen('halfway');
+    } else {
+        loadQuestion();
     }
 }
 

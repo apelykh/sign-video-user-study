@@ -64,6 +64,7 @@
 
                 <!-- Reference Text (shown for text_reference only) -->
                 <div id="reference-text-section" class="reference-text" style="display:none;">
+                    <span class="reference-text-badge">Read this first</span>
                     <strong>Reference Text:</strong>
                     <p id="reference-text-content" class="reference-content"></p>
                 </div>
@@ -130,6 +131,16 @@
                     <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
                     <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Screen 2.5: Halfway Encouragement -->
+        <div id="screen-halfway" class="screen">
+            <div class="content halfway-content">
+                <img src="halfway.png" alt="You're halfway there!" class="halfway-image">
+                <h2>You're halfway there!</h2>
+                <p>Great job so far. Just a few more to go.</p>
+                <button class="btn btn-primary" onclick="dismissHalfway()">Continue</button>
             </div>
         </div>
 
