@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Video Generation User Study</title>
+    <link rel="stylesheet" href="survey.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sign Language Video Generation User Study</h1>
+            <div id="progress-bar" class="progress-bar" style="display: none;">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </header>
+
+        <!-- Screen 1: Welcome & Proficiency -->
+        <div id="screen-welcome" class="screen active">
+            <div class="content">
+                <h2>Welcome</h2>
+                <p>Thank you for participating in this study evaluating sign language video generation models.</p>
+                <p>This survey will take approximately 15-20 minutes. You will watch short video clips and answer questions about their quality.</p>
+
+                <div class="form-group">
+                    <label>What is your British Sign Language (BSL) proficiency level?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="bsl-proficiency" value="none" required>
+                            <span>None</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="bsl-proficiency" value="basic">
+                            <span>Basic</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="bsl-proficiency" value="intermediate">
+                            <span>Intermediate</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="bsl-proficiency" value="advanced_fluent">
+                            <span>Advanced / Fluent</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="startSurvey()">Start Survey</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Unified Question Screen (adapts to question type) -->
+        <div id="screen-question" class="screen">
+            <div class="content">
+                <h2 id="question-title"></h2>
+                <p id="question-instructions" class="instructions"></p>
+
+                <!-- Reference Video (shown for phoenix_visual only) -->
+                <div id="reference-video-section" class="reference-video-section" style="display:none;">
+                    <h3>Reference Video</h3>
+                    <div class="video-item-single">
+                        <video id="reference-video" controls loop playsinline></video>
+                    </div>
+                </div>
+
+                <!-- Reference Text (shown for text_reference only) -->
+                <div id="reference-text-section" class="reference-text" style="display:none;">
+                    <strong>Reference Text:</strong>
+                    <p id="reference-text-content" class="reference-content"></p>
+                </div>
+
+                <!-- Candidate Videos (always shown) -->
+                <h3>Candidate Videos</h3>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video id="video-a" controls loop playsinline></video>
+                        <div class="video-label">Video A</div>
+                    </div>
+                    <div class="video-item">
+                        <video id="video-b" controls loop playsinline></video>
+                        <div class="video-label">Video B</div>
+                    </div>
+                    <div class="video-item">
+                        <video id="video-c" controls loop playsinline></video>
+                        <div class="video-label">Video C</div>
+                    </div>
+                    <div class="video-item">
+                        <video id="video-d" controls loop playsinline></video>
+                        <div class="video-label">Video D</div>
+                    </div>
+                </div>
+
+                <!-- Question 1: Ranking -->
+                <div class="question-group">
+                    <h3>Question 1: Ranking</h3>
+                    <p>Drag or use arrows to reorder (1 = best, 4 = worst).</p>
+                    <div id="ranking-interface" class="ranking-interface">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Question 2: Hand Shape & Facial Expression Rating -->
+                <div class="question-group">
+                    <h3>Question 2: Hand Shape & Facial Expression Quality</h3>
+                    <p>For the video you ranked #1, rate the quality of hand shapes and facial expressions:</p>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="5" required>
+                            <span>5 — Excellent</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="4">
+                            <span>4 — Good</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="3">
+                            <span>3 — Acceptable</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="2">
+                            <span>2 — Poor</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="1">
+                            <span>1 — Very Poor</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Thank You -->
+        <div id="screen-thankyou" class="screen">
+            <div class="content">
+                <h2>Thank You!</h2>
+                <p>Your responses have been submitted successfully.</p>
+                <p class="info-text">You may now close this window.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script src="survey.js"></script>
+</body>
+</html>
