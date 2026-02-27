@@ -64,7 +64,7 @@
 
                 <!-- Reference Text (shown for text_reference only) -->
                 <div id="reference-text-section" class="reference-text" style="display:none;">
-                    <span class="reference-text-badge">Read this first</span>
+                    <!-- <span class="reference-text-badge">Read this first</span> -->
                     <strong>Reference Text:</strong>
                     <p id="reference-text-content" class="reference-content"></p>
                 </div>
@@ -131,6 +131,15 @@
                     <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
                     <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Screen 2.6: Text Section Intro (advanced BSL only) -->
+        <div id="screen-text-intro" class="screen">
+            <div class="content halfway-content">
+                <h2>New Question Format</h2>
+                <p>The next set of questions contains the reference text in English with several representations in BSL.</p>
+                <button class="btn btn-primary" onclick="dismissTextIntro()">Continue</button>
             </div>
         </div>
 

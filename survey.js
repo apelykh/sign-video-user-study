@@ -209,6 +209,11 @@ function dismissHalfway() {
     showScreen('question');
 }
 
+function dismissTextIntro() {
+    loadQuestion();
+    showScreen('question');
+}
+
 function updateProgress() {
     const total = survey.questions.length;
     const pct = Math.min(100, (survey.currentIndex / total) * 100);
@@ -355,21 +360,42 @@ async function nextQuestion() {
     // Save to Firebase immediately
     await saveQuestionToFirebase(batch);
 
+    // Show confirmation on button before navigating
+    const btn = document.querySelector('.btn.btn-primary[onclick="nextQuestion()"]');
+    if (btn) {
+        const original = btn.innerHTML;
+        btn.innerHTML = '&#10003; Saved';
+        btn.style.background = '#22c55e';
+        btn.disabled = true;
+        await new Promise(r => setTimeout(r, 600));
+        btn.innerHTML = original;
+        btn.style.background = '';
+        btn.disabled = false;
+    }
+
     // Advance
+    const prevType = q.type;
     survey.currentIndex++;
     if (survey.currentIndex >= survey.questions.length) {
         finishSurvey();
     } else if (survey.currentIndex === HALFWAY_AFTER) {
         showScreen('halfway');
     } else {
-        loadQuestion();
+        const nextType = survey.questions[survey.currentIndex].type;
+        if (prevType !== 'text_reference' && nextType === 'text_reference') {
+            showScreen('text-intro');
+        } else {
+            loadQuestion();
+        }
     }
+    window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function previousQuestion() {
     if (survey.currentIndex > 0) {
         survey.currentIndex--;
         loadQuestion();
+        window.scrollTo({ top: 0, behavior: 'instant' });
     }
 }
 
