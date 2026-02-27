@@ -205,13 +205,13 @@ function showScreen(screenId) {
 }
 
 function dismissHalfway() {
-    loadQuestion();
     showScreen('question');
+    loadQuestion();
 }
 
 function dismissTextIntro() {
-    loadQuestion();
     showScreen('question');
+    loadQuestion();
 }
 
 function updateProgress() {
