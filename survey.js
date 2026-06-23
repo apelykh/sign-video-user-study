@@ -87,6 +87,8 @@ const QUESTION_TYPES = {
 
 const survey = {
     participantId: `P${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    consentGiven: false,
+    consentTime: null,
     bslProficiency: '',
     isAdvancedBsl: false,
     currentIndex: 0,
@@ -224,13 +226,25 @@ function updateProgress() {
 // Start Survey
 // ─────────────────────────────────────────────────────────────────────────────
 
+function onConsentChange() {
+    const checked = document.getElementById('consent-checkbox').checked;
+    document.getElementById('start-btn').disabled = !checked;
+}
+
 function startSurvey() {
+    if (!document.getElementById('consent-checkbox').checked) {
+        alert('Please confirm the consent statement before starting.');
+        return;
+    }
+
     const bslProficiency = document.querySelector('input[name="bsl-proficiency"]:checked')?.value;
     if (!bslProficiency) {
         alert('Please select your BSL proficiency level before starting.');
         return;
     }
 
+    survey.consentGiven = true;
+    survey.consentTime = new Date().toISOString();
     survey.bslProficiency = bslProficiency;
     survey.isAdvancedBsl = ['intermediate', 'advanced_fluent'].includes(bslProficiency);
     survey.startTime = new Date().toISOString();
@@ -558,6 +572,8 @@ async function finishSurvey() {
         try {
             await database.ref(`survey_responses/${survey.participantId}/metadata`).set({
                 participantId: survey.participantId,
+                consentGiven: survey.consentGiven,
+                consentTime: survey.consentTime,
                 bslProficiency: survey.bslProficiency,
                 isAdvancedBsl: survey.isAdvancedBsl,
                 startTime: survey.startTime,

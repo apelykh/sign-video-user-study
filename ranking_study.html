@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Video Generation User Study</title>
+    <link rel="stylesheet" href="survey.css">
+    <style>
+        /* Consent form */
+        .consent-box {
+            text-align: left;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+            max-height: 320px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .consent-box h3 { margin-top: 0; }
+        .consent-box ul { padding-left: 20px; }
+        .consent-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 16px 0;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .consent-check input { margin-top: 3px; transform: scale(1.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sign Language Video Generation User Study</h1>
+            <div id="progress-bar" class="progress-bar" style="display: none;">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </header>
+
+        <!-- Screen 1: Welcome & Proficiency -->
+        <div id="screen-welcome" class="screen active">
+            <div class="content">
+                <h2>Welcome</h2>
+                <p>Thank you for your interest in this study evaluating the quality of computer-generated British Sign Language (BSL) videos.</p>
+
+                <p><strong>What you will do:</strong> This survey takes approximately 15–20 minutes. You will watch sets of short generated BSL videos and answer questions about their quality — ranking the videos and rating the quality of hand shapes and facial expressions. You may replay each video as many times as you like.</p>
+
+                <div class="consent-box">
+                    <h3>Participant Consent</h3>
+                    <p><strong>Purpose.</strong> This research evaluates the visual quality and realism of BSL videos produced by automatic generation models.</p>
+                    <p><strong>Eligibility.</strong> You must be <strong>18 years of age or older</strong> to take part.</p>
+                    <p><strong>What is collected.</strong> Your rankings and quality ratings of the videos, your self-reported BSL proficiency level, and anonymous interaction data. No personal identifying information, audio, or video of you is recorded.</p>
+                    <ul>
+                        <li>Your participation is entirely <strong>voluntary</strong>, and you may stop at any time by closing the window; partial responses may be retained.</li>
+                        <li>All data is stored <strong>anonymously</strong> under a randomly generated participant ID and used only for academic research.</li>
+                        <li>Results may be published in aggregate; no individual can be identified.</li>
+                    </ul>
+                    <p>Questions? Contact <strong>a.pelykh@surrey.ac.uk</strong>.</p>
+                </div>
+
+                <div class="form-group">
+                    <label>What is your British Sign Language (BSL) proficiency level?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="bsl-proficiency" value="none" required>
+                            <span>None</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="bsl-proficiency" value="basic">
+                            <span>Basic</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="bsl-proficiency" value="intermediate">
+                            <span>Intermediate</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="bsl-proficiency" value="advanced_fluent">
+                            <span>Advanced / Fluent</span>
+                        </label>
+                    </div>
+                </div>
+
+                <label class="consent-check">
+                    <input type="checkbox" id="consent-checkbox" onchange="onConsentChange()">
+                    <span>I confirm that I am 18 years of age or older, I have read and understood the information above, and I consent to participate.</span>
+                </label>
+
+                <button class="btn btn-primary" id="start-btn" onclick="startSurvey()" disabled>Start Survey</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Unified Question Screen (adapts to question type) -->
+        <div id="screen-question" class="screen">
+            <div class="content">
+                <h2 id="question-title"></h2>
+                <p id="question-instructions" class="instructions"></p>
+
+                <!-- Reference Video (shown for phoenix_visual only) -->
+                <div id="reference-video-section" class="reference-video-section" style="display:none;">
+                    <h3>Reference Video</h3>
+                    <div class="video-item-single">
+                        <video id="reference-video" controls loop playsinline preload="auto"></video>
+                    </div>
+                </div>
+
+                <!-- Reference Text (shown for text_reference only) -->
+                <div id="reference-text-section" class="reference-text" style="display:none;">
+                    <!-- <span class="reference-text-badge">Read this first</span> -->
+                    <strong>Reference Text:</strong>
+                    <p id="reference-text-content" class="reference-content"></p>
+                </div>
+
+                <!-- Candidate Videos (always shown) -->
+                <h3>Candidate Videos</h3>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video id="video-a" controls loop playsinline preload="auto"></video>
+                        <div class="video-label">Video A</div>
+                    </div>
+                    <div class="video-item">
+                        <video id="video-b" controls loop playsinline preload="auto"></video>
+                        <div class="video-label">Video B</div>
+                    </div>
+                    <div class="video-item">
+                        <video id="video-c" controls loop playsinline preload="auto"></video>
+                        <div class="video-label">Video C</div>
+                    </div>
+                    <div class="video-item">
+                        <video id="video-d" controls loop playsinline preload="auto"></video>
+                        <div class="video-label">Video D</div>
+                    </div>
+                </div>
+
+                <!-- Question 1: Ranking -->
+                <div class="question-group">
+                    <h3>Question 1: Ranking</h3>
+                    <p>Drag or use arrows to reorder (1 = best, 4 = worst).</p>
+                    <div id="ranking-interface" class="ranking-interface">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Question 2: Hand Shape & Facial Expression Rating -->
+                <div class="question-group">
+                    <h3>Question 2: Hand Shape & Facial Expression Quality</h3>
+                    <p>For the video you ranked #1, rate the quality of hand shapes and facial expressions:</p>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="5" required>
+                            <span>5 — Excellent</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="4">
+                            <span>4 — Good</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="3">
+                            <span>3 — Acceptable</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="2">
+                            <span>2 — Poor</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hf-rating" value="1">
+                            <span>1 — Very Poor</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2.6: Text Section Intro (advanced BSL only) -->
+        <div id="screen-text-intro" class="screen">
+            <div class="content halfway-content">
+                <h2>New Question Format</h2>
+                <p>The next set of questions contains the reference text in English with several representations in BSL.</p>
+                <button class="btn btn-primary" onclick="dismissTextIntro()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 2.5: Halfway Encouragement -->
+        <div id="screen-halfway" class="screen">
+            <div class="content halfway-content">
+                <img src="halfway.png" alt="You're halfway there!" class="halfway-image">
+                <h2>You're halfway there!</h2>
+                <p>Great job so far. Just a few more to go.</p>
+                <button class="btn btn-primary" onclick="dismissHalfway()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Thank You -->
+        <div id="screen-thankyou" class="screen">
+            <div class="content">
+                <h2>Thank You!</h2>
+                <p>Your responses have been submitted successfully.</p>
+                <p class="info-text">You may now close this window.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script src="survey.js"></script>
+</body>
+</html>
