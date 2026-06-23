@@ -257,9 +257,12 @@ function loadQuestion() {
 
     // Reference video section
     const refVideoSection = document.getElementById('reference-video-section');
+    const refVideo = document.getElementById('reference-video');
+    refVideo.pause();
+    refVideo.removeAttribute('src');
+    refVideo.load();
     if (meta.hasReferenceVideo) {
         refVideoSection.style.display = 'block';
-        const refVideo = document.getElementById('reference-video');
         refVideo.src = `videos/${q.id}_reference.mp4`;
         refVideo.load();
     } else {
@@ -279,7 +282,14 @@ function loadQuestion() {
         refTextSection.style.display = 'none';
     }
 
-    // Candidate videos
+    // Candidate videos — pause and reset before loading new sources
+    // to prevent stale connections from blocking new fetches
+    ['a', 'b', 'c', 'd'].forEach(label => {
+        const videoEl = document.getElementById(`video-${label}`);
+        videoEl.pause();
+        videoEl.removeAttribute('src');
+        videoEl.load(); // abort any in-flight fetch
+    });
     ['a', 'b', 'c', 'd'].forEach(label => {
         const videoEl = document.getElementById(`video-${label}`);
         const model = mapping[label.toUpperCase()];

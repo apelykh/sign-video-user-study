@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSL Comprehension Study</title>
+    <link rel="stylesheet" href="survey.css">
+    <style>
+        /* Comprehension-study-specific styles */
+        .consent-box {
+            text-align: left;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+            max-height: 320px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .consent-box h3 { margin-top: 0; }
+        .consent-box ul { padding-left: 20px; }
+        .consent-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 16px 0;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .consent-check input { margin-top: 3px; transform: scale(1.3); }
+        .eligibility-note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-weight: 600;
+        }
+        .video-pair {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 16px 0;
+        }
+        .video-pane { flex: 1 1 380px; max-width: 520px; }
+        .video-pane .video-label {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .video-pane video {
+            width: 100%;
+            max-height: 360px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            background: #000;
+        }
+        .translation-area {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .translation-area:disabled { background: #f1f5f9; color: #94a3b8; }
+        .cnu-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 14px 0;
+            cursor: pointer;
+        }
+        .cnu-check input { transform: scale(1.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BSL Comprehension Study</h1>
+            <div id="progress-bar" class="progress-bar" style="display: none;">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </header>
+
+        <!-- Screen 1: Welcome & Consent -->
+        <div id="screen-welcome" class="screen active">
+            <div class="content">
+                <h2>Welcome</h2>
+                <p>Thank you for your interest in this study on the comprehensibility of computer-generated British Sign Language (BSL) videos.</p>
+
+                <div class="eligibility-note">
+                    This study is open to <strong>advanced / fluent BSL users aged 18 or older</strong>. Please take part only if you can comfortably read BSL.
+                </div>
+
+                <p><strong>What you will do:</strong> You will watch a series of short generated BSL videos. For each one, type the closest English translation you can of what is being signed. Each video is shown at normal speed and at half speed — you may replay both as many times as you like. If you cannot understand a video at all, tick the box to indicate this instead of guessing.</p>
+
+                <div class="consent-box">
+                    <h3>Participant Consent</h3>
+                    <p><strong>Purpose.</strong> This research evaluates how comprehensible BSL videos produced by automatic generation models are to fluent signers.</p>
+                    <p><strong>Eligibility.</strong> You must be <strong>18 years of age or older</strong> and a fluent BSL user to take part.</p>
+                    <p><strong>What is collected.</strong> Your typed English translations and anonymous interaction data (how many times you replayed each video, time spent, and which video version you saw). No personal identifying information, audio, or video of you is recorded.</p>
+                    <ul>
+                        <li>Your participation is entirely <strong>voluntary</strong>, and you may stop at any time by closing the window; partial responses may be retained.</li>
+                        <li>All data is stored <strong>anonymously</strong> under a randomly generated participant ID and used only for academic research.</li>
+                        <li>Results may be published in aggregate; no individual can be identified.</li>
+                    </ul>
+                    <p>Questions? Contact <strong>a.pelykh@surrey.ac.uk</strong>.</p>
+                </div>
+
+                <label class="consent-check">
+                    <input type="checkbox" id="consent-checkbox" onchange="onConsentChange()">
+                    <span>I confirm that I am 18 years of age or older and a fluent BSL user, I have read and understood the information above, and I consent to participate.</span>
+                </label>
+
+                <button class="btn btn-primary" id="start-btn" onclick="startStudy()" disabled>Start Study</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Question -->
+        <div id="screen-question" class="screen">
+            <div class="content">
+                <h2 id="question-title"></h2>
+                <p id="question-instructions" class="instructions">
+                    Watch the signing below and type the closest English translation you can. Use the
+                    half-speed version if it helps. Replay as many times as you need.
+                </p>
+
+                <div class="video-pair">
+                    <div class="video-pane">
+                        <div class="video-label">Normal speed</div>
+                        <video id="video-normal" controls loop playsinline preload="auto"></video>
+                    </div>
+                    <div class="video-pane">
+                        <div class="video-label">Slow (half speed)</div>
+                        <video id="video-slow" controls loop playsinline preload="auto"></video>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <h3>Your translation</h3>
+                    <textarea id="translation-input" class="translation-area"
+                        placeholder="Type the English translation of the signing here..."
+                        oninput="onTranslationInput()"></textarea>
+                    <label class="cnu-check">
+                        <input type="checkbox" id="cnu-checkbox" onchange="onCnuChange()">
+                        <span>I couldn't understand this video.</span>
+                    </label>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Thank You -->
+        <div id="screen-thankyou" class="screen">
+            <div class="content">
+                <h2>Thank You!</h2>
+                <p>Your responses have been submitted successfully.</p>
+                <p class="info-text">You may now close this window.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script src="comprehension.js"></script>
+</body>
+</html>
